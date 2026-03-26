@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mike Control Center — Activity Log</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2d3148;
+      --accent: #6c63ff;
+      --accent2: #00d4aa;
+      --text: #e8eaf6;
+      --muted: #7b7f9e;
+      --feature: #6c63ff;
+      --fix: #f59e0b;
+      --refactor: #00d4aa;
+      --info: #38bdf8;
+      --other: #7b7f9e;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    header .logo { font-size: 28px; }
+    header h1 { font-size: 1.3rem; font-weight: 700; color: var(--text); }
+    header p  { font-size: .8rem; color: var(--muted); }
+    header .spacer { flex: 1; }
+    #refresh-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 7px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: .85rem;
+      transition: background .15s;
+    }
+    #refresh-btn:hover { background: var(--accent); border-color: var(--accent); }
+
+    /* ── Layout ── */
+    .container { display: flex; height: calc(100vh - 70px); }
+
+    /* ── Sidebar ── */
+    aside {
+      width: 240px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 20px 16px;
+      overflow-y: auto;
+    }
+    aside h2 { font-size: .75rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 12px; }
+    .proj-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      padding: 9px 12px;
+      border-radius: 8px;
+      color: var(--text);
+      cursor: pointer;
+      font-size: .88rem;
+      margin-bottom: 4px;
+      transition: background .12s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .proj-btn:hover  { background: var(--surface2); }
+    .proj-btn.active { background: var(--accent); color: #fff; }
+    .proj-badge {
+      float: right;
+      background: var(--surface2);
+      border-radius: 20px;
+      font-size: .72rem;
+      padding: 1px 7px;
+      color: var(--muted);
+    }
+    .proj-btn.active .proj-badge { background: rgba(255,255,255,.15); color: #fff; }
+
+    /* ── Main ── */
+    main { flex: 1; overflow-y: auto; padding: 24px 28px; }
+
+    /* ── Stats bar ── */
+    .stats-bar {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 20px;
+      min-width: 120px;
+      text-align: center;
+    }
+    .stat-card .num { font-size: 1.8rem; font-weight: 700; color: var(--accent); }
+    .stat-card .lbl { font-size: .75rem; color: var(--muted); margin-top: 2px; }
+
+    /* ── Search ── */
+    .search-row { display: flex; gap: 10px; margin-bottom: 20px; }
+    #search-input {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 14px;
+      color: var(--text);
+      font-size: .9rem;
+      outline: none;
+      transition: border-color .15s;
+    }
+    #search-input:focus { border-color: var(--accent); }
+    #search-input::placeholder { color: var(--muted); }
+
+    /* ── Entry cards ── */
+    .entries { display: flex; flex-direction: column; gap: 12px; }
+
+    .entry-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color .15s;
+    }
+    .entry-card:hover { border-color: var(--accent); }
+
+    .entry-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 18px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .type-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+    .type-feature  { background: var(--feature); }
+    .type-fix      { background: var(--fix); }
+    .type-refactor { background: var(--refactor); }
+    .type-info     { background: var(--info); }
+    .type-other    { background: var(--other); }
+
+    .entry-meta { flex: 1; min-width: 0; }
+    .entry-request {
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+      line-height: 1.4;
+    }
+    .entry-summary {
+      font-size: .82rem;
+      color: var(--muted);
+    }
+
+    .entry-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .type-badge {
+      font-size: .7rem;
+      padding: 2px 9px;
+      border-radius: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .badge-feature  { background: rgba(108,99,255,.2); color: #a99fff; }
+    .badge-fix      { background: rgba(245,158,11,.2);  color: #fcd34d; }
+    .badge-refactor { background: rgba(0,212,170,.2);   color: #6ee7d1; }
+    .badge-info     { background: rgba(56,189,248,.2);  color: #7dd3fc; }
+    .badge-other    { background: rgba(123,127,158,.2); color: var(--muted); }
+
+    .ts {
+      font-size: .72rem;
+      color: var(--muted);
+    }
+    .proj-tag {
+      font-size: .7rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1px 7px;
+      color: var(--muted);
+      max-width: 130px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    /* ── Expandable detail ── */
+    .entry-detail {
+      display: none;
+      border-top: 1px solid var(--border);
+      padding: 14px 18px 16px 40px;
+      background: var(--surface2);
+    }
+    .entry-detail.open { display: block; }
+    .entry-detail h4 {
+      font-size: .75rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .entry-detail ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .entry-detail ul li {
+      font-size: .85rem;
+      color: var(--text);
+      padding-left: 14px;
+      position: relative;
+    }
+    .entry-detail ul li::before {
+      content: '›';
+      position: absolute;
+      left: 0;
+      color: var(--accent2);
+    }
+    .files-row { margin-top: 12px; }
+    .file-chip {
+      display: inline-block;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: .75rem;
+      padding: 2px 9px;
+      color: var(--muted);
+      margin: 3px 3px 0 0;
+      font-family: monospace;
+    }
+    .chevron {
+      color: var(--muted);
+      font-size: .8rem;
+      margin-left: 6px;
+      transition: transform .2s;
+    }
+    .chevron.open { transform: rotate(90deg); }
+
+    /* ── Empty state ── */
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+    .empty .icon { font-size: 3rem; margin-bottom: 12px; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo">🤖</span>
+  <div>
+    <h1>Mike Control Center</h1>
+    <p>Activity & Acties Overzicht</p>
+  </div>
+  <div class="spacer"></div>
+  <button id="refresh-btn">↻ Vernieuwen</button>
+</header>
+
+<div class="container">
+  <aside>
+    <h2>Projecten</h2>
+    <div id="project-list"></div>
+  </aside>
+
+  <main>
+    <div class="stats-bar" id="stats-bar"></div>
+
+    <div class="search-row">
+      <input id="search-input" type="text" placeholder="Zoek in verzoeken, acties, bestanden…" />
+    </div>
+
+    <div class="entries" id="entries-list"></div>
+  </main>
+</div>
+
+<script>
+  let allEntries = [];
+  let allProjects = [];
+  let activeProject = 'all';
+
+  // ── Fetch data ────────────────────────────────────────────
+  async function fetchData(project = 'all') {
+    const params = new URLSearchParams({ project, limit: 500 });
+    const res = await fetch(`/api/activity?${params}`);
+    const data = await res.json();
+    return data;
+  }
+
+  async function load(project = activeProject) {
+    activeProject = project;
+    const data = await fetchData(project);
+    allEntries = data.entries;
+    allProjects = data.projects;
+    renderSidebar(data.projects, data.total, data.projectCounts || {});
+    renderStats(allEntries);
+    renderEntries(allEntries);
+  }
+
+  // ── Sidebar ───────────────────────────────────────────────
+  function renderSidebar(projects, total, projectCounts) {
+    const list = document.getElementById('project-list');
+    const buttons = [
+      ['all', '📋 Alles', total],
+      ...projects.map(p => ['📁 ' + p, p, projectCounts[p] || ''])
+    ];
+    list.innerHTML = `
+      <button class="proj-btn ${activeProject === 'all' ? 'active' : ''}" onclick="load('all')">
+        📋 Alles <span class="proj-badge">${total}</span>
+      </button>
+      ${projects.map(p => `
+        <button class="proj-btn ${ activeProject === p ? 'active' : ''}" onclick="load('${p}')">
+          📁 ${p} <span class="proj-badge">${projectCounts[p] || 0}</span>
+        </button>
+      `).join('')}
+    `;
+  }
+
+  // ── Stats ─────────────────────────────────────────────────
+  function renderStats(entries) {
+    const types = {};
+    entries.forEach(e => { types[e.type] = (types[e.type] || 0) + 1; });
+    const stats = [
+      { num: entries.length, lbl: 'Acties totaal' },
+      { num: types.feature  || 0, lbl: 'Features' },
+      { num: types.fix      || 0, lbl: 'Fixes' },
+      { num: types.refactor || 0, lbl: 'Refactors' },
+    ];
+    document.getElementById('stats-bar').innerHTML = stats.map(s => `
+      <div class="stat-card">
+        <div class="num">${s.num}</div>
+        <div class="lbl">${s.lbl}</div>
+      </div>
+    `).join('');
+  }
+
+  // ── Entries ───────────────────────────────────────────────
+  function renderEntries(entries) {
+    const q = document.getElementById('search-input').value.toLowerCase();
+    const filtered = q ? entries.filter(e =>
+      (e.request||'').toLowerCase().includes(q) ||
+      (e.summary||'').toLowerCase().includes(q) ||
+      (e.actions||[]).some(a => a.toLowerCase().includes(q)) ||
+      (e.files_changed||[]).some(f => f.toLowerCase().includes(q))
+    ) : entries;
+
+    const el = document.getElementById('entries-list');
+    if (!filtered.length) {
+      el.innerHTML = `<div class="empty"><div class="icon">🔍</div><p>Geen resultaten gevonden</p></div>`;
+      return;
+    }
+
+    el.innerHTML = filtered.map(e => {
+      const type = e.type || 'other';
+      const ts = new Date(e.timestamp).toLocaleString('nl-NL', {
+        day:'2-digit', month:'short', year:'numeric',
+        hour:'2-digit', minute:'2-digit'
+      });
+      const actions = (e.actions || []).map(a => `<li>${a}</li>`).join('');
+      const files   = (e.files_changed || []).map(f => `<span class="file-chip">${f}</span>`).join('');
+
+      return `
+        <div class="entry-card" id="card-${e.id}">
+          <div class="entry-header" onclick="toggle('${e.id}')">
+            <span class="type-dot type-${type}"></span>
+            <div class="entry-meta">
+              <div class="entry-request">${e.request || '(geen verzoek)'}<span class="chevron" id="chev-${e.id}">›</span></div>
+              <div class="entry-summary">${e.summary || ''}</div>
+            </div>
+            <div class="entry-right">
+              <span class="type-badge badge-${type}">${type}</span>
+              ${e.project && activeProject === 'all' ? `<span class="proj-tag">📁 ${e.project}</span>` : ''}
+              <span class="ts">${ts}</span>
+            </div>
+          </div>
+          ${actions || files ? `
+          <div class="entry-detail" id="detail-${e.id}">
+            ${actions ? `<h4>Wat er is gedaan</h4><ul>${actions}</ul>` : ''}
+            ${files ? `<div class="files-row"><h4 style="margin-top:10px">Gewijzigde bestanden</h4>${files}</div>` : ''}
+          </div>` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  function toggle(id) {
+    const detail = document.getElementById(`detail-${id}`);
+    const chev   = document.getElementById(`chev-${id}`);
+    if (!detail) return;
+    const open = detail.classList.toggle('open');
+    chev.classList.toggle('open', open);
+  }
+
+  // ── Search ────────────────────────────────────────────────
+  document.getElementById('search-input').addEventListener('input', () => renderEntries(allEntries));
+  document.getElementById('refresh-btn').addEventListener('click', () => load());
+
+  // ── Boot ─────────────────────────────────────────────────
+  load();
+</script>
+</body>
+</html>

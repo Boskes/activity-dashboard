@@ -1,0 +1,15 @@
+{
+  "name": "mike-activity-dashboard",
+  "version": "1.0.0",
+  "description": "Mike's activity dashboard — wat heb ik gevraagd, wat heeft Mike gedaan",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  }
+}

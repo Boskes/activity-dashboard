@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "id": "001",
+      "timestamp": "2025-07-22T07:52:07.000Z",
+      "project": "youtube-transcript-tool",
+      "type": "feature",
+      "request": "Zorg ervoor dat ik van video kan wisselen zonder helemaal omhoog te scrollen",
+      "summary": "URL-balk + navigatie-knoppen toegevoegd onder de laadbalk",
+      "actions": [
+        "Bestaande index.html gelezen",
+        "Stats-balk uitgebreid met video-URL link (↗)",
+        "Bewerkbare URL-balk toegevoegd onder de laadbalk met ▶ Laden knop",
+        "✏️ Nieuw knop toegevoegd om te resetten en naar boven te scrollen",
+        "loadNewUrl() en clearAndFocus() JavaScript-functies geïmplementeerd"
+      ],
+      "files_changed": [
+        "youtube-transcript-tool/public/index.html"
+      ]
+    },
+    {
+      "id": "002",
+      "timestamp": "2026-03-24T06:59:37.000Z",
+      "project": "dashboard",
+      "type": "feature",
+      "request": "Maak een overzicht in het control center van alles wat ik heb gevraagd en wat Mike heeft gedaan, ook per project",
+      "summary": "Mike Activity Dashboard gebouwd op http://localhost:3001",
+      "actions": [
+        "dashboard/ map aangemaakt met Express server (port 3001)",
+        "GET /api/activity API — entries ophalen, filterbaar per project",
+        "POST /api/activity API — nieuwe entries toevoegen na elke taak",
+        "activity-log.json als persistente JSON-opslag",
+        "Frontend gebouwd: tijdlijn, stats-rij, project-filters, detail-uitklap per entry",
+        "Eerste entry (youtube-transcript-tool) handmatig toegevoegd",
+        "TOOLS.md bijgewerkt met dashboard info en instructies"
+      ],
+      "files_changed": [
+        "dashboard/server.js",
+        "dashboard/public/index.html",
+        "dashboard/activity-log.json",
+        "dashboard/package.json",
+        "TOOLS.md"
+      ]
+    },
+    {
+      "id": "003",
+      "timestamp": "2026-03-24T07:00:37.318Z",
+      "request": "Overzicht in het control center van alles wat gevraagd is en wat Mike heeft gedaan, ook per project",
+      "actions": [
+        "dashboard/public/index.html gebouwd (volledig nieuwe dark-mode UI)",
+        "Sidebar toegevoegd met per-project tellingen (projectCounts API)",
+        "Stats-balk: totaal, features, fixes, refactors",
+        "Zoekfunctie over verzoeken, acties en bestanden",
+        "Detail-uitklap per entry: lijst van acties + gewijzigde bestanden als chips",
+        "server.js uitgebreid met projectCounts in de API-response",
+        "Dashboard server herstart met nieuwe public/ map"
+      ],
+      "type": "feature",
+      "summary": "Activity dashboard volledig herbouwd met nieuwe frontend: sidebar met project-tellingen, stats-balk, zoekfunctie, detail-uitklap per entry",
+      "files_changed": [
+        "dashboard/public/index.html",
+        "dashboard/server.js"
+      ],
+      "project": "dashboard"
+    },
+    {
+      "id": "004",
+      "timestamp": "2026-03-25T06:19:00.234Z"
+    }
+  ]
+}
