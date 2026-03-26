@@ -9,11 +9,11 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = 3001;
-const LOG_FILE = path.join(__dirname, 'activity-log.json');
+const LOG_FILE = path.join(__dirname, '../activity-log.json');
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 function readLog() {
   try {
@@ -62,7 +62,7 @@ app.post('/api/activity', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, '../frontend', 'index.html'));
 });
 
 app.listen(PORT, () => {
